@@ -1,0 +1,19 @@
+<div class="container">
+  <div class="row">
+    <div align="center" class="col-sm">
+      <% if current_member %>
+        <%= link_to "Sign Out", destroy_member_session_path, method: :delete %>
+      <% else %>
+        <%= link_to "Sign In", new_member_session_path %>
+      <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <div align="center" class="col-sm">
+      <h1>Long Distance Bridge</h1>
+      <% if current_member %>
+        <%= link_to 'Start or Join A Match', members_path %>
+      <% end %>
+    </div>
+  </div>
+</div>

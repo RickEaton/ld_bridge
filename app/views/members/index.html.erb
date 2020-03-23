@@ -1,0 +1,80 @@
+<h2><%= current_member.name %>, you are the host</h2>
+<% if @games.count == 0 %>
+  <h3>Please open a game and invite players</h3>
+  <button>
+    <%=button_to 'Start a new game', create_game_path, params: {host: current_member}, method: :post %>
+  </button>
+<% else %>
+  <% if @games.count > 1 %>
+    <h3>Multiple open games exist. Please close all but one.</h3>
+    <table>
+      <thead>
+        <tr>
+          <td>Start Time</td>
+          <td>Host</td>
+        </tr>
+      </thead>
+      <tbody>
+        <% @games.each do |game| %>
+          <tr>
+            <td><%= game.start_time %></td>
+            <td><%= Member.find(game.host).name rescue 'Player not found' %></td>
+            <td><%= link_to 'End this game', game_path(game.id), method: :delete %></td>
+          </tr>
+        <% end %>>
+      </tbody>
+    </table>
+  <% else %>
+    <h4>Please invite players to the game so you can start playing. You will be able to start when four players are online.</h4>
+    <td><%= link_to 'End this game', @games.first, method: :delete, confirm: 'Are you sure you want to end this game?' %></td>
+    <table>
+      <thead>
+        <tr>
+          <td>Player Name</td>
+          <td>Email</td>
+          <td>Status</td>
+          <td>Position</td>
+          <td>Action</td>
+        </tr>
+      </thead>
+      <tbody>
+        <% @games.first.players.each do |player| %>
+          <tr>
+            <td><%= player.name %></td>
+            <td><%= player.member.email %></td>
+            <td><%= player.status %>  </td>
+            <td><%= player.position %></td>
+            <td><%= link_to 'Remove from game', player_path(player), method: :delete %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @games.first.players.count == 4 %>
+      <h5><%= link_to 'Great! Your are ready to start playing!', game_path(@games.first) %></h5>
+    <% end %>
+  <% end %>
+<% end %>
+<% if @games.first && @games.first.players.count < 4 %>
+  <h4>Available Members</h4>
+  <table>
+    <thead>
+      <tr>
+        <td>Member Name</td>
+        <td>Member Email</td>
+        <td>Signed In?</td>
+        <td>Actions</td>
+      </tr>
+    </thead>
+    <tbody>
+      <% @members.not_in_game(@games.first).each do |member| %>
+        <tr>
+          <td><%= member.name %></td>
+          <td><%= member.email %></td>
+          <td></td>
+          <td><%= link_to "Add to game", add_player_path(member_id: member, game_id: @games.first.id) if @games %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+<%= link_to "Sign Out", destroy_member_session_path, method: :delete %>
